@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "./ERC165.sol";
+import "./ERC165C1155.sol";
 
 /**
     @title ERC-1155 Multi Token Standard

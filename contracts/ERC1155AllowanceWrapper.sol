@@ -1,13 +1,13 @@
 pragma solidity ^0.5.0;
 
 import "./IERC1155.sol";
-import "./ERC165.sol";
+import "./ERC165C1155.sol";
 import "./SafeMath.sol";
 
 // Shows how you could wrap some allowance on top of ERC1155
 // A user would setApprovalForAll(true) for this wrapper in the target contract,
 // and the set the individual allowances here.
-contract AllowanceWrapper is IERC1155, ERC165
+contract AllowanceWrapper is IERC1155, ERC165C1155
 {
     using SafeMath for uint256;
 
@@ -62,7 +62,7 @@ contract AllowanceWrapper is IERC1155, ERC165
     external
     view
     returns (bool) {
-         ERC165(address(targetContract)).supportsInterface(_interfaceId);
+         ERC165C1155(address(targetContract)).supportsInterface(_interfaceId);
     }
 
     /**

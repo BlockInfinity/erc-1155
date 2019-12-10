@@ -7,7 +7,7 @@ import "./IERC1155TokenReceiver.sol";
 import "./IERC1155.sol";
 
 // A sample implementation of core ERC1155 function.
-contract ERC1155 is IERC1155, ERC165, CommonConstants
+contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
 {
     using SafeMath for uint256;
     using Address for address;
