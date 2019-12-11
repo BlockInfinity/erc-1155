@@ -75,7 +75,7 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
 
         require(_to != address(0x0), "_to must be non-zero.");
         require(_from == msg.sender || operatorApproval[_from][msg.sender] == true, "Need operator approval for 3rd party transfers.");
-        require(receptionApproval[_id][_to][_from], "Receiver has not approved receiving this token from this sender.");
+        consumeReceptionApproval(_id, _to, _from, _value);
 
         // SafeMath will throw with insuficient funds _from
         // or if _id is not valid (balance will be 0)
@@ -119,7 +119,7 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
             uint256 id = _ids[i];
             uint256 value = _values[i];
             
-            require(receptionApproval[id][_to][_from], "Receiver has not approved receiving this token from this sender.");
+            consumeReceptionApproval(id, _to, _from, value);
 
             // SafeMath will throw with insuficient funds _from
             // or if _id is not valid (balance will be 0)
@@ -230,5 +230,12 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
         for(uint32 i; i < _values.length; i++) {
             receptionApproval[_ids[i]][msg.sender][_sender] = PerishableValue(_values[i], _expiryBlock);
         }
+    }
+    
+    function consumeReceptionApproval(uint256 _id, address _to, address _from, uint256 _value) internal {
+        require(receptionApproval[_id][_to][_from].expiryBlock <= block.number);
+        require(receptionApproval[_id][_to][_from].value >= _value);
+        
+        receptionApproval[_id][_to][_from].value = receptionApproval[_id][_to][_from].value.sub(_value);
     }
 }
