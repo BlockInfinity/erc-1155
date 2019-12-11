@@ -75,6 +75,7 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
 
         require(_to != address(0x0), "_to must be non-zero.");
         require(_from == msg.sender || operatorApproval[_from][msg.sender] == true, "Need operator approval for 3rd party transfers.");
+        require(receptionApproval[_id][_to][_from], "Receiver has not approved receiving this token from this sender.");
 
         // SafeMath will throw with insuficient funds _from
         // or if _id is not valid (balance will be 0)
@@ -117,6 +118,8 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
         for (uint256 i = 0; i < _ids.length; ++i) {
             uint256 id = _ids[i];
             uint256 value = _values[i];
+            
+            require(receptionApproval[id][_to][_from], "Receiver has not approved receiving this token from this sender.");
 
             // SafeMath will throw with insuficient funds _from
             // or if _id is not valid (balance will be 0)
