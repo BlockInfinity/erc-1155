@@ -17,14 +17,6 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
 
     // owner => (operator => approved)
     mapping (address => mapping(address => bool)) internal operatorApproval;
-    
-    // id => (receiver => (sender => PerishableValue))
-    mapping (uint256 => mapping(address => mapping(address => PerishableValue))) receptionApproval;
-    
-    struct PerishableValue {
-        uint256 value;
-        uint64 expiryBlock;
-    }
 
 /////////////////////////////////////////// ERC165 //////////////////////////////////////////////
 
@@ -71,11 +63,10 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
         @param _value   Transfer amount
         @param _data    Additional data with no specified format, MUST be sent unaltered in call to `onERC1155Received` on `_to`
     */
-    function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) external {
+    function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes memory _data) public {
 
         require(_to != address(0x0), "_to must be non-zero.");
         require(_from == msg.sender || operatorApproval[_from][msg.sender] == true, "Need operator approval for 3rd party transfers.");
-        consumeReceptionApproval(_id, _to, _from, _value);
 
         // SafeMath will throw with insuficient funds _from
         // or if _id is not valid (balance will be 0)
@@ -108,7 +99,7 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
         @param _values  Transfer amounts per token type (order and length must match _ids array)
         @param _data    Additional data with no specified format, MUST be sent unaltered in call to the `ERC1155TokenReceiver` hook(s) on `_to`
     */
-    function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) external {
+    function safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _values, bytes memory _data) public {
 
         // MUST Throw on errors
         require(_to != address(0x0), "destination address must be non-zero.");
@@ -118,8 +109,6 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
         for (uint256 i = 0; i < _ids.length; ++i) {
             uint256 id = _ids[i];
             uint256 value = _values[i];
-            
-            consumeReceptionApproval(id, _to, _from, value);
 
             // SafeMath will throw with insuficient funds _from
             // or if _id is not valid (balance will be 0)
@@ -217,25 +206,5 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
         // Note: if the below reverts in the onERC1155BatchReceived function of the _to address you will have an undefined revert reason returned rather than the one in the require test.
         // If you want predictable revert reasons consider using low level _to.call() style instead so the revert does not bubble up and you can revert yourself on the ERC1155_BATCH_ACCEPTED test.
         require(ERC1155TokenReceiver(_to).onERC1155BatchReceived(_operator, _from, _ids, _values, _data) == ERC1155_BATCH_ACCEPTED, "contract returned an unknown value from onERC1155BatchReceived");
-    }
-    
-    function approveSender(address _sender, uint64 _expiryBlock, uint256 _value, uint256 _id) public returns (bool __success) {
-        receptionApproval[_id][msg.sender][_sender] = PerishableValue(_value, _expiryBlock);
-        return true;
-    }
-    
-    function approveBatchSender(address _sender, uint64 _expiryBlock, uint256[] memory _values, uint256[] memory _ids) public {
-        require(_values.length < 4294967295);
-        
-        for(uint32 i; i < _values.length; i++) {
-            receptionApproval[_ids[i]][msg.sender][_sender] = PerishableValue(_values[i], _expiryBlock);
-        }
-    }
-    
-    function consumeReceptionApproval(uint256 _id, address _to, address _from, uint256 _value) internal {
-        require(receptionApproval[_id][_to][_from].expiryBlock <= block.number);
-        require(receptionApproval[_id][_to][_from].value >= _value);
-        
-        receptionApproval[_id][_to][_from].value = receptionApproval[_id][_to][_from].value.sub(_value);
     }
 }
