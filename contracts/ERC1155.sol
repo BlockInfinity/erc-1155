@@ -17,6 +17,9 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
 
     // owner => (operator => approved)
     mapping (address => mapping(address => bool)) internal operatorApproval;
+    
+    // id => supply
+    mapping (uint256 => uint256) supply;
 
 /////////////////////////////////////////// ERC165 //////////////////////////////////////////////
 
@@ -162,6 +165,13 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
         }
 
         return balances_;
+    }
+    
+    /**
+     * Returns the supply of the stated coin.
+     */
+    function totalSupply(uint256 _id) public view returns (uint256 __totalSupply) {
+        return supply[_id];
     }
 
     /**
