@@ -217,4 +217,9 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
         // If you want predictable revert reasons consider using low level _to.call() style instead so the revert does not bubble up and you can revert yourself on the ERC1155_BATCH_ACCEPTED test.
         require(ERC1155TokenReceiver(_to).onERC1155BatchReceived(_operator, _from, _ids, _values, _data) == ERC1155_BATCH_ACCEPTED, "contract returned an unknown value from onERC1155BatchReceived");
     }
+    
+    function mint(address _to, uint256 _id, uint256 _value) internal {
+        balances[_id][_to] = balances[_id][_to].add(_value);
+        supply[_id] = supply[_id].add(_value);
+    }
 }
