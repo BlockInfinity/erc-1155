@@ -66,7 +66,7 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
         @param _value   Transfer amount
         @param _data    Additional data with no specified format, MUST be sent unaltered in call to `onERC1155Received` on `_to`
     */
-    function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes memory _data) public {
+    function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) external {
 
         require(_to != address(0x0), "_to must be non-zero.");
         require(_from == msg.sender || operatorApproval[_from][msg.sender] == true, "Need operator approval for 3rd party transfers.");
@@ -102,7 +102,7 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
         @param _values  Transfer amounts per token type (order and length must match _ids array)
         @param _data    Additional data with no specified format, MUST be sent unaltered in call to the `ERC1155TokenReceiver` hook(s) on `_to`
     */
-    function safeBatchTransferFrom(address _from, address _to, uint256[] memory _ids, uint256[] memory _values, bytes memory _data) public {
+    function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) external {
 
         // MUST Throw on errors
         require(_to != address(0x0), "destination address must be non-zero.");
@@ -170,7 +170,7 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
     /**
      * Returns the supply of the stated coin.
      */
-    function totalSupply(uint256 _id) public view returns (uint256 __totalSupply) {
+    function totalSupply(uint256 _id) external view returns (uint256 __totalSupply) {
         return supply[_id];
     }
 
