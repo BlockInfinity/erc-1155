@@ -1,12 +1,15 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.7.0;
 
 import "./ERC1155MixedFungible.sol";
+import "./ERC1155.sol";
 
 /**
     @dev Mintable form of ERC1155
     Shows how easy it is to mint new items
 */
 contract ERC1155MixedFungibleMintable is ERC1155MixedFungible {
+    using SafeMath for uint256;
+    using Address for address;
 
     uint256 nonce;
     mapping (uint256 => address) public creators;

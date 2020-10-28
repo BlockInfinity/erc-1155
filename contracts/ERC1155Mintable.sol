@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.7.0;
 
 import "./ERC1155.sol";
 
@@ -7,6 +7,8 @@ import "./ERC1155.sol";
     Shows how easy it is to mint new items.
 */
 contract ERC1155Mintable is ERC1155 {
+    using SafeMath for uint256;
+    using Address for address;
 
     bytes4 constant private INTERFACE_SIGNATURE_URI = 0x0e89341c;
 
@@ -22,13 +24,14 @@ contract ERC1155Mintable is ERC1155 {
     }
 
     function supportsInterface(bytes4 _interfaceId)
+    override
     public
     view
     returns (bool) {
         if (_interfaceId == INTERFACE_SIGNATURE_URI) {
             return true;
         } else {
-            return super.supportsInterface(_interfaceId);
+            return ERC1155(this).supportsInterface(_interfaceId);
         }
     }
 

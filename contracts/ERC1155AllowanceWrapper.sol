@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.7.0;
 
 import "./IERC1155.sol";
 import "./ERC165C1155.sol";
@@ -7,7 +7,7 @@ import "./SafeMath.sol";
 // Shows how you could wrap some allowance on top of ERC1155
 // A user would setApprovalForAll(true) for this wrapper in the target contract,
 // and the set the individual allowances here.
-contract AllowanceWrapper is IERC1155, ERC165C1155
+abstract contract AllowanceWrapper is IERC1155, ERC165C1155
 {
     using SafeMath for uint256;
 
@@ -19,7 +19,7 @@ contract AllowanceWrapper is IERC1155, ERC165C1155
     /**
         @dev Pass in the target contract.
     */
-    constructor(address _target) public {
+    constructor(address _target) {
         targetContract = IERC1155(_target);
     }
 
@@ -59,10 +59,11 @@ contract AllowanceWrapper is IERC1155, ERC165C1155
     // ERC1155
 
     function supportsInterface(bytes4 _interfaceId)
+    override
     external
     view
     returns (bool) {
-         ERC165C1155(address(targetContract)).supportsInterface(_interfaceId);
+        return ERC165C1155(address(targetContract)).supportsInterface(_interfaceId);
     }
 
     /**
@@ -78,7 +79,7 @@ contract AllowanceWrapper is IERC1155, ERC165C1155
         @param _value   transfer amounts
         @param _data    Additional data with no specified format, sent in call to `_to`
     */
-    function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) external /*payable*/  {
+    function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) override external /*payable*/  {
         if (msg.sender != _from) {
             allowances[_from][msg.sender][_id] = allowances[_from][msg.sender][_id].sub(_value);
         }
@@ -97,7 +98,7 @@ contract AllowanceWrapper is IERC1155, ERC165C1155
         @param _values  Transfer amounts per token type
         @param _data    Additional data with no specified format, sent in call to `_to`
     */
-    function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) external /*payable*/ {
+    function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) override external /*payable*/ {
         if (msg.sender != _from) {
             for (uint256 i = 0; i < _ids.length; ++i) {
                 allowances[_from][msg.sender][_ids[i]] = allowances[_from][msg.sender][_ids[i]].sub(_values[i]);
@@ -112,7 +113,7 @@ contract AllowanceWrapper is IERC1155, ERC165C1155
         @param _id     ID of the Token
         @return        The _owner's balance of the Token type requested
      */
-    function balanceOf(address _owner, uint256 _id) external view returns (uint256) {
+    function balanceOf(address _owner, uint256 _id) override external view returns (uint256) {
         return targetContract.balanceOf(_owner, _id);
     }
 
@@ -120,7 +121,7 @@ contract AllowanceWrapper is IERC1155, ERC165C1155
         @notice Enable or disable approval for a third party ("operator") to manage all of `msg.sender`'s tokens.
         @dev MUST emit the ApprovalForAll event on success.
     */
-    function setApprovalForAll(address /*_operator*/, bool /*_approved*/) external {
+    function setApprovalForAll(address /*_operator*/, bool /*_approved*/) override external pure {
         // Do this on the wrapped contract directly. We can't do this here
         revert();
     }
@@ -131,7 +132,7 @@ contract AllowanceWrapper is IERC1155, ERC165C1155
         @param _operator  Address of authorized operator
         @return           True if the operator is approved, false if not
     */
-    function isApprovedForAll(address _owner, address _operator) view external returns (bool) {
+    function isApprovedForAll(address _owner, address _operator) override view external returns (bool) {
         return targetContract.isApprovedForAll(_owner, _operator);
     }
 }

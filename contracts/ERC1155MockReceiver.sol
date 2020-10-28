@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.7.0;
 
 import "./Common.sol";
 import "./IERC1155TokenReceiver.sol";
@@ -19,7 +19,7 @@ contract ERC1155MockReceiver is ERC1155TokenReceiver, CommonConstants {
         shouldReject = _value;
     }
 
-    function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _value, bytes calldata _data) external returns(bytes4) {
+    function onERC1155Received(address _operator, address _from, uint256 _id, uint256 _value, bytes calldata _data) override external returns(bytes4) {
         lastOperator = _operator;
         lastFrom = _from;
         lastId = _id;
@@ -32,7 +32,7 @@ contract ERC1155MockReceiver is ERC1155TokenReceiver, CommonConstants {
         }
     }
 
-    function onERC1155BatchReceived(address _operator, address _from, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) external returns(bytes4) {
+    function onERC1155BatchReceived(address _operator, address _from, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) override external returns(bytes4) {
         lastOperator = _operator;
         lastFrom = _from;
         lastId = _ids[0];
@@ -46,7 +46,7 @@ contract ERC1155MockReceiver is ERC1155TokenReceiver, CommonConstants {
     }
 
     // ERC165 interface support
-    function supportsInterface(bytes4 interfaceID) external view returns (bool) {
+    function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
         return  interfaceID == 0x01ffc9a7 ||    // ERC165
                 interfaceID == 0x4e2312e0;      // ERC1155_ACCEPTED ^ ERC1155_BATCH_ACCEPTED;
     }
