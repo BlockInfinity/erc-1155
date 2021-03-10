@@ -1,6 +1,5 @@
 pragma solidity ^0.8.1;
 
-import "./SafeMath.sol";
 import "./Address.sol";
 import "./Common.sol";
 import "./IERC1155TokenReceiver.sol";
@@ -10,7 +9,6 @@ import "./ERC165C1155.sol";
 // A sample implementation of core ERC1155 function.
 contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
 {
-    using SafeMath for uint256;
     using Address for address;
 
     // id => (owner => balance)
@@ -76,8 +74,8 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
 
         // SafeMath will throw with insuficient funds _from
         // or if _id is not valid (balance will be 0)
-        balances[_id][_from] = balances[_id][_from].sub(_value);
-        balances[_id][_to]   = _value.add(balances[_id][_to]);
+        balances[_id][_from] = balances[_id][_from] - _value;
+        balances[_id][_to]   = _value + balances[_id][_to];
 
         // MUST emit event
         emit TransferSingle(msg.sender, _from, _to, _id, _value);
@@ -118,8 +116,8 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
 
             // SafeMath will throw with insuficient funds _from
             // or if _id is not valid (balance will be 0)
-            balances[id][_from] = balances[id][_from].sub(value);
-            balances[id][_to]   = value.add(balances[id][_to]);
+            balances[id][_from] = balances[id][_from] - value;
+            balances[id][_to]   = value + balances[id][_to];
         }
 
         // Note: instead of the below batch versions of event and acceptance check you MAY have emitted a TransferSingle
@@ -222,7 +220,7 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
     }
     
     function mint(address _to, uint256 _id, uint256 _value) internal {
-        balances[_id][_to] = balances[_id][_to].add(_value);
-        supply[_id] = supply[_id].add(_value);
+        balances[_id][_to] = balances[_id][_to] + _value;
+        supply[_id] = supply[_id] + _value;
     }
 }
