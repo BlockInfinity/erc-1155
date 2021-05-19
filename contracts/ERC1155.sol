@@ -220,7 +220,12 @@ contract ERC1155 is IERC1155, ERC165C1155, CommonConstants
     }
     
     function mint(address _to, uint256 _id, uint256 _value) internal {
-        balances[_id][_to] = balances[_id][_to] + _value;
-        supply[_id] = supply[_id] + _value;
+        balances[_id][_to] += _value;
+        supply[_id] += _value;
+    }
+    
+    function burn(address _from, uint256 _id, uint256 _value) internal {
+        balances[_id][_from] -= _value;
+        supply[_id] -= _value;
     }
 }
